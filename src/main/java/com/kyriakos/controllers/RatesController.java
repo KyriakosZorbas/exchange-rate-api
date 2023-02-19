@@ -3,6 +3,7 @@ package com.kyriakos.controllers;
 import com.google.gson.Gson;
 import com.kyriakos.models.internal.Currency;
 import com.kyriakos.services.CurrencyService;
+import com.kyriakos.utils.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,11 +31,24 @@ public class RatesController {
 
         logger.info("Fetching rates");
         Gson gson = new Gson();
+        Validator validator = new Validator();
         CurrencyService currencyService = new CurrencyService();
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("from");
         requiredParameters.add("to");
+
+        /* Validate if all the required parameters exist. */
+        ResponseEntity<String> validateParameters = validator.checkParameters(payload, requiredParameters);
+        if (!(validateParameters.getStatusCode() == HttpStatus.OK)) {
+            return validateParameters;
+        }
+
+        /* Validate if the incoming post body (payload) is in correct format regarding the internal Currency model. */
+        ResponseEntity<String> validateModel = validator.checkModel(payload, gson);
+        if (!(validateModel.getStatusCode() == HttpStatus.OK)) {
+            return validateModel;
+        }
 
         /* Parse the incoming post body (payload) to the internal Currency model. */
         Currency currency = gson.fromJson(payload.toString(), Currency.class);
@@ -46,6 +60,13 @@ public class RatesController {
         currencyCodes.add(currencyFrom);
         currencyCodes.add(currencyTo);
 
+        /* Validate if all the provided currency codes are valid. */
+        ResponseEntity<String> validateCurrencyCodes = validator.checkCurrencyCodes(currencyCodes);
+        if (!(validateCurrencyCodes.getStatusCode() == HttpStatus.OK)) {
+            return validateCurrencyCodes;
+        }
+
+        /* Return the response only if all validations are passed */
         String response = currencyService.getExchangeRateConversion(currencyFrom, currencyTo);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -58,10 +79,22 @@ public class RatesController {
         logger.info("Fetching rates");
         Gson gson = new Gson();
         CurrencyService currencyService = new CurrencyService();
+        Validator validator = new Validator();
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("base");
 
+        /* Validate if the required parameter exist. */
+        ResponseEntity<String> validateParameters = validator.checkParameters(payload, requiredParameters);
+        if (!(validateParameters.getStatusCode() == HttpStatus.OK)) {
+            return validateParameters;
+        }
+
+        /* Validate if the incoming post body (payload) is in correct format regarding the internal Currency model. */
+        ResponseEntity<String> validateModel = validator.checkModel(payload, gson);
+        if (!(validateModel.getStatusCode() == HttpStatus.OK)) {
+            return validateModel;
+        }
 
         /* Parse the incoming post body (payload) to the internal Currency model. */
         Currency currency = gson.fromJson(payload.toString(), Currency.class);
@@ -71,12 +104,17 @@ public class RatesController {
         ArrayList<String> currencyCodes = new ArrayList<>();
         currencyCodes.add(currencyBase);
 
+        /* Validate if all the provided currency code is valid. */
+        ResponseEntity<String> validateCurrencyCodes = validator.checkCurrencyCodes(currencyCodes);
+        if (!(validateCurrencyCodes.getStatusCode() == HttpStatus.OK)) {
+            return validateCurrencyCodes;
+        }
+
         /* Return the response only if all validations are passed */
         String response = currencyService.getExchangeRatesConversion(currencyBase);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
-
 
     /* Get value conversion from Currency A to Currency B. */
     @RequestMapping(value = "/exchange-rate-value", method = RequestMethod.POST)
@@ -85,23 +123,48 @@ public class RatesController {
         logger.info("Fetching rates");
         Gson gson = new Gson();
         CurrencyService currencyService = new CurrencyService();
+        Validator validator = new Validator();
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("from");
         requiredParameters.add("to");
         requiredParameters.add("amount");
 
+        /* Validate if all the required parameters exist. */
+        ResponseEntity<String> validateParameters = validator.checkParameters(payload, requiredParameters);
+        if (!(validateParameters.getStatusCode() == HttpStatus.OK)) {
+            return validateParameters;
+        }
+
+        /* Validate if the incoming post body (payload) is in correct format regarding the internal Currency model. */
+        ResponseEntity<String> validateModel = validator.checkModel(payload, gson);
+        if (!(validateModel.getStatusCode() == HttpStatus.OK)) {
+            return validateModel;
+        }
+
         /* Parse the incoming post body (payload) to the internal Currency model. */
         Currency currency = gson.fromJson(payload.toString(), Currency.class);
         String currencyFrom = currency.getFrom();
         String currencyTo = currency.getTo();
-        Float amount = currency.getAmount();
-
 
         /* Create a list with all the provided currency codes in order to validate it. */
         ArrayList<String> currencyCodes = new ArrayList<>();
         currencyCodes.add(currencyFrom);
         currencyCodes.add(currencyTo);
+
+        /* Validate if all the provided currency codes are valid. */
+        ResponseEntity<String> validateCurrencyCodes = validator.checkCurrencyCodes(currencyCodes);
+        if (!(validateCurrencyCodes.getStatusCode() == HttpStatus.OK)) {
+            return validateCurrencyCodes;
+        }
+
+        Float amount = currency.getAmount();
+
+        /* Validate if the provided amount is valid. */
+        ResponseEntity<String> validateAmount = validator.checkAmount(amount);
+        if (!(validateAmount.getStatusCode() == HttpStatus.OK)) {
+            return validateAmount;
+        }
 
         /* Return the response only if all validations are passed */
         String response = currencyService.getExchangeRateValue(currencyFrom, currencyTo, amount);
@@ -116,11 +179,24 @@ public class RatesController {
         logger.info("Fetching rates");
         Gson gson = new Gson();
         CurrencyService currencyService = new CurrencyService();
+        Validator validator = new Validator();
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("amount");
         requiredParameters.add("base");
         requiredParameters.add("symbols");
+
+        /* Validate if all the required parameters exist. */
+        ResponseEntity<String> validateParameters = validator.checkParameters(payload, requiredParameters);
+        if (!(validateParameters.getStatusCode() == HttpStatus.OK)) {
+            return validateParameters;
+        }
+
+        /* Validate if the incoming post body (payload) is in correct format regarding the internal Currency model. */
+        ResponseEntity<String> validateModel = validator.checkModel(payload, gson);
+        if (!(validateModel.getStatusCode() == HttpStatus.OK)) {
+            return validateModel;
+        }
 
         /* Parse the incoming post body (payload) to the internal Currency model. */
         Currency currency = gson.fromJson(payload.toString(), Currency.class);
@@ -136,11 +212,24 @@ public class RatesController {
             currencyCodes.add(value);
         }
 
+        /* Validate if all the provided currency codes are valid. */
+        ResponseEntity<String> validateCurrencyCodes = validator.checkCurrencyCodes(currencyCodes);
+        if (!(validateCurrencyCodes.getStatusCode() == HttpStatus.OK)) {
+            return validateCurrencyCodes;
+        }
+
         Float amount = currency.getAmount();
+
+        /* Validate if the provided amount is valid. */
+        ResponseEntity<String> validateAmount = validator.checkAmount(amount);
+        if (!(validateAmount.getStatusCode() == HttpStatus.OK)) {
+            return validateAmount;
+        }
 
         /* Return the response only if all validations are passed */
         String response = currencyService.getExchangeRatesValue(base, amount, symbols);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
 }
