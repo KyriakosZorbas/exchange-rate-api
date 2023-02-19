@@ -3,10 +3,14 @@ package com.kyriakos.utils;
 import com.google.gson.Gson;
 import com.kyriakos.exceptions.ExchangeRateApplicationException;
 import com.kyriakos.models.internal.Currency;
+import com.kyriakos.repositories.CurrencyRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -256,6 +260,43 @@ public class Validator {
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body("OK");
+    }
+
+    public boolean isCached(String hashID, CurrencyRepository currencyRepository) {
+
+        try {
+            System.out.println(hashID);
+            Boolean isCached = currencyRepository.existsById(hashID);
+            return isCached;
+
+        } catch (Exception ex) {
+            return false;
+        }
+
+    }
+
+    public String createMD5Hash(final String input)
+            throws NoSuchAlgorithmException {
+
+        String hashtext = null;
+        MessageDigest md = MessageDigest.getInstance("MD5");
+
+        /* Compute message digest of the input */
+        byte[] messageDigest = md.digest(input.getBytes());
+
+        hashtext = convertToHex(messageDigest);
+
+        return hashtext;
+    }
+
+
+    private String convertToHex(final byte[] messageDigest) {
+        BigInteger bigint = new BigInteger(1, messageDigest);
+        String hexText = bigint.toString(16);
+        while (hexText.length() < 32) {
+            hexText = "0".concat(hexText);
+        }
+        return hexText;
     }
 
 

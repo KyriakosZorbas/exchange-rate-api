@@ -2,10 +2,15 @@ package com.kyriakos.models.internal;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.util.List;
 
+@RedisHash("Currency")
 public class Currency {
+
+    @Id String id;
 
     @SerializedName("from")
     @Expose
@@ -34,6 +39,14 @@ public class Currency {
     @SerializedName("rates")
     @Expose
     private Rates rates;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getFrom() {
         return from;

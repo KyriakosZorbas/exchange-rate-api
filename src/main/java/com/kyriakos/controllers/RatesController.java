@@ -2,17 +2,19 @@ package com.kyriakos.controllers;
 
 import com.google.gson.Gson;
 import com.kyriakos.models.internal.Currency;
+import com.kyriakos.repositories.CurrencyRepository;
 import com.kyriakos.services.CurrencyService;
+import com.kyriakos.utils.ResultBuilder;
 import com.kyriakos.utils.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +26,8 @@ public class RatesController {
 
     public static final Logger logger = LoggerFactory.getLogger(RatesController.class);
 
+    @Autowired
+    private CurrencyRepository currencyRepository;
 
     /* Get exchange rate from Currency A to Currency B. */
     @RequestMapping(value = "/exchange-rate", method = RequestMethod.POST)
@@ -33,6 +37,20 @@ public class RatesController {
         Gson gson = new Gson();
         Validator validator = new Validator();
         CurrencyService currencyService = new CurrencyService();
+
+
+        /* Create a MD5Hash string regarding the incoming request */
+        String MD5Hash = validator.createMD5Hash(payload.toString());
+        /* Check if the incoming request is cached in order to fetch the result from Redis and not by the Service */
+        Boolean isCached = validator.isCached(MD5Hash, currencyRepository);
+        if (isCached) {
+
+            Currency retrievedCurrency = currencyRepository.findById(MD5Hash).get();
+            ResultBuilder resultBuilder = new ResultBuilder();
+
+            String response = resultBuilder.buildResultCached(retrievedCurrency);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("from");
@@ -67,7 +85,7 @@ public class RatesController {
         }
 
         /* Return the response only if all validations are passed */
-        String response = currencyService.getExchangeRateConversion(currencyFrom, currencyTo);
+        String response = currencyService.getExchangeRateConversion(currencyFrom, currencyTo, MD5Hash, currencyRepository);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -80,6 +98,19 @@ public class RatesController {
         Gson gson = new Gson();
         CurrencyService currencyService = new CurrencyService();
         Validator validator = new Validator();
+
+        /* Create a MD5Hash string regarding the incoming request */
+        String MD5Hash = validator.createMD5Hash(payload.toString());
+        /* Check if the incoming request is cached in order to fetch the result from Redis and not by the Service */
+        Boolean isCached = validator.isCached(MD5Hash, currencyRepository);
+        if (isCached) {
+
+            Currency retrievedCurrency = currencyRepository.findById(MD5Hash).get();
+            ResultBuilder resultBuilder = new ResultBuilder();
+
+            String response = resultBuilder.buildResultCached(retrievedCurrency);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("base");
@@ -111,7 +142,7 @@ public class RatesController {
         }
 
         /* Return the response only if all validations are passed */
-        String response = currencyService.getExchangeRatesConversion(currencyBase);
+        String response = currencyService.getExchangeRatesConversion(currencyBase, MD5Hash, currencyRepository);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -124,6 +155,19 @@ public class RatesController {
         Gson gson = new Gson();
         CurrencyService currencyService = new CurrencyService();
         Validator validator = new Validator();
+
+        /* Create a MD5Hash string regarding the incoming request */
+        String MD5Hash = validator.createMD5Hash(payload.toString());
+        /* Check if the incoming request is cached in order to fetch the result from Redis and not by the Service */
+        Boolean isCached = validator.isCached(MD5Hash, currencyRepository);
+        if (isCached) {
+
+            Currency retrievedCurrency = currencyRepository.findById(MD5Hash).get();
+            ResultBuilder resultBuilder = new ResultBuilder();
+
+            String response = resultBuilder.buildResultCached(retrievedCurrency);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("from");
@@ -167,7 +211,7 @@ public class RatesController {
         }
 
         /* Return the response only if all validations are passed */
-        String response = currencyService.getExchangeRateValue(currencyFrom, currencyTo, amount);
+        String response = currencyService.getExchangeRateValue(currencyFrom, currencyTo, amount, MD5Hash, currencyRepository);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
@@ -180,6 +224,19 @@ public class RatesController {
         Gson gson = new Gson();
         CurrencyService currencyService = new CurrencyService();
         Validator validator = new Validator();
+
+        /* Create a MD5Hash string regarding the incoming request */
+        String MD5Hash = validator.createMD5Hash(payload.toString());
+        /* Check if the incoming request is cached in order to fetch the result from Redis and not by the Service */
+        Boolean isCached = validator.isCached(MD5Hash, currencyRepository);
+        if (isCached) {
+
+            Currency retrievedCurrency = currencyRepository.findById(MD5Hash).get();
+            ResultBuilder resultBuilder = new ResultBuilder();
+
+            String response = resultBuilder.buildResultCached(retrievedCurrency);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
 
         ArrayList<String> requiredParameters = new ArrayList<>();
         requiredParameters.add("amount");
@@ -227,7 +284,7 @@ public class RatesController {
         }
 
         /* Return the response only if all validations are passed */
-        String response = currencyService.getExchangeRatesValue(base, amount, symbols);
+        String response = currencyService.getExchangeRatesValue(base, amount, symbols, MD5Hash, currencyRepository);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

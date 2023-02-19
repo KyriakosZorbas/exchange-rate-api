@@ -3,6 +3,7 @@ package com.kyriakos.services;
 import com.google.gson.Gson;
 import com.kyriakos.models.external.Currency;
 import com.kyriakos.models.external.Rates;
+import com.kyriakos.repositories.CurrencyRepository;
 import com.kyriakos.utils.ResultBuilder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,7 +18,7 @@ public class CurrencyService {
 
     private static final String URL = "https://api.exchangerate.host/";
 
-    public String getExchangeRateConversion(String currencyFrom, String currencyTo) throws IOException {
+    public String getExchangeRateConversion(String currencyFrom, String currencyTo, String MD5Hash, CurrencyRepository currencyRepository) throws IOException {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -38,13 +39,14 @@ public class CurrencyService {
 
         ResultBuilder rb = new ResultBuilder();
 
-        String result = rb.buildResultForCurrencyConversion(currencyFrom, currencyTo, amount, resultAfterConversion, date);
+        String result = rb.buildResultForCurrencyConversion(currencyFrom, currencyTo, amount, resultAfterConversion, date, MD5Hash, currencyRepository);
 
         return result;
 
     }
 
-    public String getExchangeRatesConversion(String base) throws IOException {
+
+    public String getExchangeRatesConversion(String base, String MD5Hash, CurrencyRepository currencyRepository) throws IOException {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -63,13 +65,14 @@ public class CurrencyService {
 
         ResultBuilder resultBuilder = new ResultBuilder();
 
-        String result = resultBuilder.buildResultForCurrencyRates(base, date, rates);
+        String result = resultBuilder.buildResultForCurrencyRates(base, date, rates, MD5Hash, currencyRepository);
 
         return result;
 
     }
 
-    public String getExchangeRateValue(String currencyFrom, String currencyTo, Float amount) throws IOException {
+
+    public String getExchangeRateValue(String currencyFrom, String currencyTo, Float amount, String MD5Hash, CurrencyRepository currencyRepository) throws IOException {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -88,13 +91,13 @@ public class CurrencyService {
 
         ResultBuilder rb = new ResultBuilder();
 
-        String result = rb.buildResultForCurrencyConversion(currencyFrom, currencyTo, amount, resultAfterConversion, date);
+        String result = rb.buildResultForCurrencyConversion(currencyFrom, currencyTo, amount, resultAfterConversion, date, MD5Hash, currencyRepository);
 
         return result;
 
     }
 
-    public String getExchangeRatesValue(String base, Float amount, List<String> symbols) throws IOException {
+    public String getExchangeRatesValue(String base, Float amount, List<String> symbols, String MD5Hash, CurrencyRepository currencyRepository) throws IOException {
 
 
         String symbolsCommaSeparated = String.join(",", symbols);
@@ -115,11 +118,10 @@ public class CurrencyService {
 
         ResultBuilder rb = new ResultBuilder();
 
-        String result = rb.buildResultForValueConversionForMultipleCurrency(amount, base, date, rates);
+        String result = rb.buildResultForValueConversionForMultipleCurrency(amount, base, date, rates, MD5Hash, currencyRepository);
 
         return result;
 
     }
-
 
 }
