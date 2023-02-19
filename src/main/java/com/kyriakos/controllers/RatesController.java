@@ -3,6 +3,7 @@ package com.kyriakos.controllers;
 import com.google.gson.Gson;
 import com.kyriakos.models.internal.Currency;
 import com.kyriakos.services.CurrencyService;
+import com.kyriakos.utils.ResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -75,5 +76,36 @@ public class RatesController {
 
     }
 
+
+    /* Get value conversion from Currency A to Currency B. */
+    @RequestMapping(value = "/exchange-rate-value", method = RequestMethod.POST)
+    public ResponseEntity<String> exchangeRateValue(@RequestBody Map<String, Object> payload) throws Exception {
+
+        logger.info("Fetching rates");
+        Gson gson = new Gson();
+        CurrencyService currencyService = new CurrencyService();
+
+        ArrayList<String> requiredParameters = new ArrayList<>();
+        requiredParameters.add("from");
+        requiredParameters.add("to");
+        requiredParameters.add("amount");
+
+        /* Parse the incoming post body (payload) to the internal Currency model. */
+        Currency currency = gson.fromJson(payload.toString(), Currency.class);
+        String currencyFrom = currency.getFrom();
+        String currencyTo = currency.getTo();
+        Float amount = currency.getAmount();
+
+
+        /* Create a list with all the provided currency codes in order to validate it. */
+        ArrayList<String> currencyCodes = new ArrayList<>();
+        currencyCodes.add(currencyFrom);
+        currencyCodes.add(currencyTo);
+
+        /* Return the response only if all validations are passed */
+        String response = currencyService.getExchangeRateValue(currencyFrom, currencyTo, amount);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
 
 }

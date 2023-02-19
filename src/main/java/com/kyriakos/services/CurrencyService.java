@@ -68,5 +68,30 @@ public class CurrencyService {
 
     }
 
+    public String getExchangeRateValue(String currencyFrom, String currencyTo, Float amount) throws IOException {
+
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        Request request = new Request.Builder()
+                .url(URL + "convert?from=" + currencyFrom + "&to=" + currencyTo + "&amount=" + amount)
+                .build();
+        Response response = client.newCall(request).execute();
+
+        String myResult = response.body().string();
+
+        Gson gson = new Gson();
+        Currency currency = gson.fromJson(myResult, Currency.class);
+
+        String date = currency.getDate();
+        Double resultAfterConversion = currency.getResult();
+
+        ResultBuilder rb = new ResultBuilder();
+
+        String result = rb.buildResultForCurrencyConversion(currencyFrom, currencyTo, amount, resultAfterConversion, date);
+
+        return result;
+
+    }
+
 
 }
