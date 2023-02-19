@@ -49,5 +49,31 @@ public class RatesController {
 
     }
 
+    /* Get all exchange rates from Currency A. */
+    @RequestMapping(value = "/exchange-rates", method = RequestMethod.POST)
+    public ResponseEntity<String> exchangeRatesConversion(@RequestBody Map<String, Object> payload) throws Exception {
+
+        logger.info("Fetching rates");
+        Gson gson = new Gson();
+        CurrencyService currencyService = new CurrencyService();
+
+        ArrayList<String> requiredParameters = new ArrayList<>();
+        requiredParameters.add("base");
+
+
+        /* Parse the incoming post body (payload) to the internal Currency model. */
+        Currency currency = gson.fromJson(payload.toString(), Currency.class);
+        String currencyBase = currency.getBase();
+
+        /* Create a list with all the provided currency codes in order to validate it. */
+        ArrayList<String> currencyCodes = new ArrayList<>();
+        currencyCodes.add(currencyBase);
+
+        /* Return the response only if all validations are passed */
+        String response = currencyService.getExchangeRatesConversion(currencyBase);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
 
 }

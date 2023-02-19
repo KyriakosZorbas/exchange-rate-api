@@ -2,6 +2,7 @@ package com.kyriakos.services;
 
 import com.google.gson.Gson;
 import com.kyriakos.models.external.Currency;
+import com.kyriakos.models.external.Rates;
 import com.kyriakos.utils.ResultBuilder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -41,5 +42,31 @@ public class CurrencyService {
         return result;
 
     }
+
+    public String getExchangeRatesConversion(String base) throws IOException {
+
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        Request request = new Request.Builder()
+                .url(URL + "latest?base=" + base)
+                .build();
+        Response response = client.newCall(request).execute();
+
+        String myResult = response.body().string();
+
+        Gson gson = new Gson();
+        Currency currency = gson.fromJson(myResult, Currency.class);
+
+        String date = currency.getDate();
+        Rates rates = currency.getRates();
+
+        ResultBuilder resultBuilder = new ResultBuilder();
+
+        String result = resultBuilder.buildResultForCurrencyRates(base, date, rates);
+
+        return result;
+
+    }
+
 
 }
