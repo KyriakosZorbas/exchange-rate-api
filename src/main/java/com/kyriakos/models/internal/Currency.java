@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import java.util.List;
 
-@RedisHash("Currency")
+@RedisHash(value = "Currency",timeToLive = 60L)
 public class Currency {
 
     @Id String id;
