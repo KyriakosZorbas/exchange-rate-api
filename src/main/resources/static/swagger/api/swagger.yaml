@@ -1,0 +1,168 @@
+swagger: "2.0"
+info:
+  description: "This is a sample server that fetches exchange rates from publicly available
+API (https://exchangerate.host) and use it for conversion calculations."
+  version: "1.0.0"
+  title: "Exchange Rate Api"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "zorbaskyriakos@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:8080"
+basePath: "/api"
+paths:
+  /exchange-rate:
+    post:
+      tags:
+        - "Exchange rate endpoints"
+      summary: "Get exchange rate from Currency A to Currency B."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/exchange-rate"
+      responses:
+        "200":
+          description: "Invalid input"
+        "400":
+          description: "The provided currency code is wrong."
+        "422":
+          description: "Missing parameter"
+        "500":
+          description: "The input json is malformed."
+  /exchange-rates:
+    post:
+      tags:
+        - "Exchange rate endpoints"
+      summary: "Get all exchange rates from Currency A."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/exchange-rates"
+      responses:
+        "200":
+          description: "Invalid input"
+        "400":
+          description: "The provided currency code is wrong."
+        "422":
+          description: "Missing parameter"
+        "500":
+          description: "The input json is malformed."
+  /exchange-rate-value:
+    post:
+      tags:
+        - "Exchange rate endpoints"
+      summary: "Get value conversion from Currency A to Currency B."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/exchange-rate-value"
+      responses:
+        "200":
+          description: "Invalid input"
+        "400":
+          description: "The provided currency code or the amount is wrong."
+        "422":
+          description: "Missing parameter"
+        "500":
+          description: "The input json is malformed."
+  /exchange-rates-value:
+    post:
+      tags:
+        - "Exchange rate endpoints"
+      summary: "Get value conversion from Currency A to a list of supplied currencies."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/exchange-rates-value"
+      responses:
+        "200":
+          description: "Invalid input"
+        "400":
+          description: "The provided currency code or the amount is wrong."
+        "422":
+          description: "Missing parameter"
+        "500":
+          description: "The input json is malformed."
+definitions:
+  exchange-rate:
+    type: "object"
+    required:
+      - "from"
+      - "to"
+    properties:
+      from:
+        type: string
+        example: "EUR"
+      to:
+        type: string
+        example: "USD"
+  exchange-rates:
+    type: "object"
+    required:
+      - "base"
+    properties:
+      base:
+        type: string
+        example: "EUR"
+  exchange-rate-value:
+    type: "object"
+    required:
+      - "from"
+      - "to"
+      - "amount"
+    properties:
+      from:
+        type: string
+        example: "EUR"
+      to:
+        type: string
+        example: "USD"
+      amount:
+        type: number
+        example: 7
+  exchange-rates-value:
+    type: "object"
+    required:
+      - "base"
+      - "amount"
+      - "symbols"
+    properties:
+      base:
+        type: string
+        example: "EUR"
+      amount:
+        type: number
+        example: 13
+      symbols:
+        type: array
+        xml:
+          wrapped: true
+        items:
+          type: string
+        example: ["USD","GBP"]
