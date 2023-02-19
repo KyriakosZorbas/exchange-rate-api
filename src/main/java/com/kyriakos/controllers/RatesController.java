@@ -3,7 +3,6 @@ package com.kyriakos.controllers;
 import com.google.gson.Gson;
 import com.kyriakos.models.internal.Currency;
 import com.kyriakos.services.CurrencyService;
-import com.kyriakos.utils.ResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -106,6 +107,40 @@ public class RatesController {
         String response = currencyService.getExchangeRateValue(currencyFrom, currencyTo, amount);
         return new ResponseEntity<>(response, HttpStatus.OK);
 
+    }
+
+    /* Get value conversion from Currency A to a list of supplied currencies. */
+    @RequestMapping(value = "/exchange-rates-value", method = RequestMethod.POST)
+    public ResponseEntity<String> exchangeRatesValue(@RequestBody Map<String, Object> payload) throws Exception {
+
+        logger.info("Fetching rates");
+        Gson gson = new Gson();
+        CurrencyService currencyService = new CurrencyService();
+
+        ArrayList<String> requiredParameters = new ArrayList<>();
+        requiredParameters.add("amount");
+        requiredParameters.add("base");
+        requiredParameters.add("symbols");
+
+        /* Parse the incoming post body (payload) to the internal Currency model. */
+        Currency currency = gson.fromJson(payload.toString(), Currency.class);
+        String base = currency.getBase();
+        List<String> symbols = currency.getSymbols();
+
+        /* Create a list with all the provided currency codes in order to validate it. */
+        ArrayList<String> currencyCodes = new ArrayList<>();
+        currencyCodes.add(base);
+        Iterator<String> it = symbols.iterator();
+        while (it.hasNext()) {
+            String value = it.next();
+            currencyCodes.add(value);
+        }
+
+        Float amount = currency.getAmount();
+
+        /* Return the response only if all validations are passed */
+        String response = currencyService.getExchangeRatesValue(base, amount, symbols);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

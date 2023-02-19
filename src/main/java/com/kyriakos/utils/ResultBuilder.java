@@ -41,4 +41,25 @@ public class ResultBuilder {
 
         return json;
     }
+
+    public String buildResultForValueConversionForMultipleCurrency(Float amount, String base, String date, Rates rates) {
+
+        Currency currency = new Currency();
+        Gson gson = new Gson();
+
+        currency.setBase(base);
+        currency.setDate(date);
+        currency.setAmount(amount);
+
+        /* Migrate Rates from external model to the internal model */
+        String jsonString = new Gson().toJson(rates);
+        currency.setRates(gson.fromJson(jsonString, com.kyriakos.models.internal.Rates.class));
+
+        gson = new GsonBuilder().create();
+        String json = gson.toJson(currency);
+
+        return json;
+    }
+
+
 }

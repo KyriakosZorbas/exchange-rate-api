@@ -10,6 +10,7 @@ import okhttp3.Response;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class CurrencyService {
@@ -88,6 +89,33 @@ public class CurrencyService {
         ResultBuilder rb = new ResultBuilder();
 
         String result = rb.buildResultForCurrencyConversion(currencyFrom, currencyTo, amount, resultAfterConversion, date);
+
+        return result;
+
+    }
+
+    public String getExchangeRatesValue(String base, Float amount, List<String> symbols) throws IOException {
+
+
+        String symbolsCommaSeparated = String.join(",", symbols);
+
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        Request request = new Request.Builder()
+                .url(URL + "latest?base=" + base + "&amount=" + amount + "&symbols=" + symbolsCommaSeparated)
+                .build();
+        Response response = client.newCall(request).execute();
+
+        String myResult = response.body().string();
+
+        Gson gson = new Gson();
+        Currency currency = gson.fromJson(myResult, Currency.class);
+
+        String date = currency.getDate();
+        Rates rates = currency.getRates();
+
+        ResultBuilder rb = new ResultBuilder();
+
+        String result = rb.buildResultForValueConversionForMultipleCurrency(amount, base, date, rates);
 
         return result;
 
